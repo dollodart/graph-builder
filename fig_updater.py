@@ -9,7 +9,7 @@ import dash_core_components as dcc
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from whittaker_smooth import whittaker_smooth
+from smooth import whittaker_smooth
 from data import numeric_dtypes
 
 #from scipy.interpolate import UnivariateSpline
