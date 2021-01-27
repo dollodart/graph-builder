@@ -14,7 +14,7 @@ from fig_updater import fig_updater
 from data import df, options
 
 app = dash.Dash(__name__,suppress_callback_exceptions=True)
-fig = fig_updater(df, xs=['dateRep'], ys=['cases']) 
+fig = fig_updater(df, xs=['dateRep'], ys=['cases_weekly']) 
 
 main_layout = html.Div(id='main',children=[
     # dependent and independent variables (x- and y-axes)
@@ -22,7 +22,7 @@ main_layout = html.Div(id='main',children=[
                                                   html.H6("Select y-axis"),
                                                   html.H6("Cartesian product")]),
     html.Div(style=dict(columnCount=3), children=[dcc.Dropdown(options=options, id='x-axis', multi=True, value=['dateRep']),
-                                                  dcc.Dropdown(options=options, id='y-axis', multi=True, value=['cases']),
+                                                  dcc.Dropdown(options=options, id='y-axis', multi=True, value=['cases_weekly']),
                                                   daq.ToggleSwitch(id='cartesian-prod',value=False)
                                                   ]),
     # legend options (symbol, size, color)

@@ -4,6 +4,7 @@ GNU General Public License <https://www.gnu.org/licenses/>.
 """
 import numpy as np
 from scipy import sparse
+from scipy.sparse.linalg import spsolve
 
 def whittaker_smooth(y, lmbd):
 
@@ -27,5 +28,5 @@ def whittaker_smooth(y, lmbd):
     E = sparse.eye(L, format='csc')
     D = sparse.diags([1, -2, 1], [0, -1, -2], shape=(L, L))
     Z = E + lmbd * D.transpose() @ D
-    z = sparse.spsolve(Z, y)
+    z = sparse.linalg.spsolve(Z, y)
     return z
