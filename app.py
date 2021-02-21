@@ -9,10 +9,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import pandas as pd
-from fig_updater import fig_updater
 from data import df, options
-from flask import Flask
 from layouts import *
+from fig_updater import fig_updater, assign_fig_update
 
 def create_dash_app():
     fig = fig_updater(df, xs=['dateRep'], ys=['cases_weekly']) 
@@ -31,6 +30,7 @@ def create_dash_app():
     return app
 
 app = create_dash_app()
+app = assign_fig_update(app)
 
 show = {'height':'auto'}
 hide = {'height':'0', 'overflow':'hidden','line-height':0,'display':'block'}
@@ -63,31 +63,6 @@ def update_smoother_slider(smoother):
         marks = {k:{'label':f'{k}'} for k in [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]}
         return 1, 50, 15, 1, marks, show
         
-
-@app.callback(
-    Output('plot', 'figure'),
-    [Input('x-axis', 'value'),
-     Input('y-axis', 'value'),
-     Input('symbol', 'value'),
-     Input('size', 'value'),
-     Input('color', 'value'),
-     Input('hover-data', 'value'),
-     Input('cartesian-prod','value'),
-     Input('smoother', 'value'),
-     Input('smoother-slider', 'value')
-     ])
-def update_fig(x, y, symbol, size, color, hover_data, cartesian_prod, smoother, smoother_slider):
-    fig = fig_updater(df, x, y, 
-            symbol=symbol, 
-            size=size, 
-            color=color, 
-            hover_data=hover_data, 
-            cartesian_prod=cartesian_prod,
-            smoother=smoother,
-            smoother_parameter=smoother_slider)
-    fig.update_layout(transition_duration=500)
-    return fig
-
 # column aliasing
 @app.callback(
     [Output('alias-history','value'),
