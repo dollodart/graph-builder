@@ -132,15 +132,15 @@ def update_smoother_slider(smoother):
     Input('submit-alias', 'n_clicks'),
     [State('name','value'),
      State('alias','value'),
-     State('alias-history','value')]
+     State('alias-history','value'),
+     State('x-axis', 'options')]
 )
-def update_aliases(submit_alias, name, alias, alias_history):
+def update_aliases(submit_alias, name, alias, alias_history, current_options):
     if alias is not None and name is not None:
-        options = [{'label':x, 'value':x} for x in df.columns if x != alias]
-        df[alias] = df[name] 
-        options.append({'label': alias, 'value': alias})
+        options.append({'label': alias, 'value': name})
         return (alias_history + '\n' +
                 f'{name}\t{alias}\t{submit_alias}',) + (options,) * 6
+    return dash.no_update
 
 
 if __name__ == '__main__':
