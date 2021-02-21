@@ -9,7 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from smooth import whittaker_smooth
-from data import df, numeric_dtypes
+from data import df, gbl, numeric_dtypes
 from dash.dependencies import Input, Output
 
 #from scipy.interpolate import UnivariateSpline
@@ -103,9 +103,7 @@ def fig_updater(df, xs, ys, size=None, color=None, symbol=None,
             dfcolor = df[color]
         coloriter = dfcolor.unique()
     else:
-        color = 'dummy'
-        df[color] = True
-        dfcolor = df[color]
+        dfcolor = df['dummy']
         coloriter = [True]
 
     if symbol is not None: 
@@ -115,9 +113,7 @@ def fig_updater(df, xs, ys, size=None, color=None, symbol=None,
             dfsymbol = df[symbol]
         symboliter = dfsymbol.unique()
     else:
-        symbol = 'dummy'
-        df[symbol] = True
-        dfsymbol = df[symbol]
+        dfsymbol = df['dummy']
         symboliter = [True]
 
     for ccounter, c in enumerate(coloriter):
@@ -198,32 +194,6 @@ def disc2cont(series, max_val=40):
     #codes, _ = pd.factorize(series)
     #codes = codes * max_val / codes.max()
     return series.map(dict(zip(series.unique(), np.linspace(0, max_val, series.nunique()))))
-
-def assign_fig_update(app):
-    @app.callback(
-        Output('plot', 'figure'),
-        [Input('x-axis', 'value'),
-         Input('y-axis', 'value'),
-         Input('symbol', 'value'),
-         Input('size', 'value'),
-         Input('color', 'value'),
-         Input('hover-data', 'value'),
-         Input('cartesian-prod','value'),
-         Input('smoother', 'value'),
-         Input('smoother-slider', 'value')
-         ])
-    def update_fig(x, y, symbol, size, color, hover_data, cartesian_prod, smoother, smoother_slider):
-        fig = fig_updater(df, x, y, 
-                symbol=symbol, 
-                size=size, 
-                color=color, 
-                hover_data=hover_data, 
-                cartesian_prod=cartesian_prod,
-                smoother=smoother,
-                smoother_parameter=smoother_slider)
-        fig.update_layout(transition_duration=500)
-        return fig
-    return app
 
 if __name__ == '__main__':
     x1 = 'dateRep'

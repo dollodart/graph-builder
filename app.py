@@ -7,11 +7,11 @@ GNU General Public License <https://www.gnu.org/licenses/>.
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ALL, MATCH
 import pandas as pd
 from data import df, options
 from layouts import *
-from fig_updater import fig_updater, assign_fig_update
+from fig_updater import fig_updater
 from filter import assign_filter
 
 def create_dash_app():
@@ -31,7 +31,6 @@ def create_dash_app():
     return app
 
 app = create_dash_app()
-app = assign_fig_update(app)
 app = assign_filter(app)
 
 show = {'height':'auto'}
@@ -47,6 +46,62 @@ def display_page(pathname):
         return hide, show, hide
     elif pathname == '/aliasing':
         return hide, hide, show
+
+from filter import apply_filter
+@app.callback(
+    [Output('plot', 'figure'),
+     Output('current-filters', 'value')],
+    [Input('x-axis', 'value'),
+     Input('y-axis', 'value'),
+     Input('symbol', 'value'),
+     Input('size', 'value'),
+     Input('color', 'value'),
+     Input('hover-data', 'value'),
+     Input('cartesian-prod','value'),
+     Input('smoother', 'value'),
+     Input('smoother-slider', 'value'),
+     Input({'type': 'filter-update', 'index': ALL}, 'n_clicks')
+     ],
+    [State({'type': 'filter-dropdown', 'index': ALL}, 'value'),
+         State({'type': 'filter-lb', 'index': ALL}, 'value'),
+         State({'type': 'filter-ub', 'index': ALL}, 'value'),
+         State('current-filters', 'value')])
+def all_figure_callbacks(x, y, 
+        symbol, size, color, hover_data, 
+        cartesian_prod, 
+        smoother, smoother_slider,
+        filter_nclicks, filter_fields, filter_lbs, filter_ubs, filter_history):
+
+    # if using dash callback context to selectively update boolean, need to cache the data
+    # just recompute the filter for every adjust, since it isn't expensive
+    #    ctx = dash.callback_context
+    #    print(ctx.triggered)
+    #    if 'filter-update' in ctx.triggered[0]['prop_id']: # they stringify the ID
+
+    has_filter = False
+    nnone = []
+    for i in range(len(filter_fields)):
+        if filter_fields[i] is not None:
+            has_filter = True
+            nnone.append((filter_fields[i], filter_lbs[i], filter_ubs[i]))
+
+    if has_filter:
+        f, l, u = zip(*nnone)
+        gbl, filter_history_update = apply_filter(f, l, u)
+        filter_history += filter_history_update
+    else:
+        gbl = [True]*len(df)
+
+    fig = fig_updater(df[gbl], x, y,
+            symbol=symbol,
+            size=size,
+            color=color,
+            hover_data=hover_data,
+            cartesian_prod=cartesian_prod,
+            smoother=smoother,
+            smoother_parameter=smoother_slider)
+    fig.update_layout(transition_duration=500)
+    return fig, filter_history
 
 @app.callback([Output('smoother-slider', 'min'),
     Output('smoother-slider', 'max'),

@@ -88,21 +88,6 @@ def assign_filter(app):
 
 
     @app.callback(
-        Output('current-filters', 'value'),
-        [Input({'type': 'filter-update', 'index': ALL}, 'n_clicks')],
-        [State({'type': 'filter-dropdown', 'index': ALL}, 'value'),
-         State({'type': 'filter-lb', 'index': ALL}, 'value'),
-         State({'type': 'filter-ub', 'index': ALL}, 'value')]
-    )
-    def update_graph(n_clicks, fields, lbs, ubs):
-        st = ''
-        for i in range(len(fields)):
-            if n_clicks[i] is not None:
-                st += f'{i} {fields[i]} {lbs[i]} {ubs[i]}\n'
-        return st
-
-
-    @app.callback(
         Output({'type': 'filter-container', 'index': MATCH}, 'children'),
         [Input({'type': 'filter-delete', 'index': MATCH}, 'n_clicks')]
     )
@@ -111,8 +96,40 @@ def assign_filter(app):
 
     return app
 
+# is used by
+import numpy as np
+
+def apply_filter(fields, lbs, ubs):
+    st = ''
+    bls = []
+    for i in range(len(fields)):
+        st += f'{i} {fields[i]} {lbs[i]} {ubs[i]}\n'
+        if types[fields[i]] == 'continuous':
+            bls.append((df[fields[i]] > lbs[i]) & (df[fields[i]] < ubs[i]))
+        else:
+            bls.append(df[fields[i]] == lbs[i])
+
+    gbl = np.all(bls, axis=0)
+
+    return gbl, st
+
+
 if __name__ == '__main__':
     app = dash.Dash(__name__)
+    @app.callback(
+        [Output('current-filters', 'value')],
+        [Input({'type': 'filter-update', 'index': ALL}, 'n_clicks')],
+        [State({'type': 'filter-dropdown', 'index': ALL}, 'value'),
+         State({'type': 'filter-lb', 'index': ALL}, 'value'),
+         State({'type': 'filter-ub', 'index': ALL}, 'value')]
+    )
+    def update_graph(n_clicks, fields, lbs, ubs):
+        st = ''
+        bls = []
+        for i in range(len(fields)):
+            if n_clicks[i] is not None:
+                st += f'{i} {fields[i]} {lbs[i]} {ubs[i]}\n'
+        return st
     from layouts import filtering_layout
     app.layout = filtering_layout
     app = assign_filter(app)

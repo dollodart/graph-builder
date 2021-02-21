@@ -25,9 +25,11 @@ except (FileNotFoundError, ZeroDivisionError):
 
 numeric_dtypes = ['int64', 'int32', 'float32', 'float64']
 x1 = 'dateRep'
-df = df[df['geoId'].isin(['US', 'BR', 'IN'])] # data subset for testing
+gbl = df['geoId'].isin(['US', 'BR', 'IN'])
+df = df[gbl] # data subset for testing
 df[x1] = pd.to_datetime(df[x1], dayfirst=True)
 options = [{'label': x, 'value': x} for x in df.columns]
+df['dummy'] = True # dummy column used for some boolean tests
 
 dlists = []
 for col in df.columns:
@@ -38,4 +40,3 @@ for col in df.columns:
 
 options = [{'label': i, 'value': i} for i in df.columns]
 types = {k:'continuous' if v in numeric_dtypes else 'discrete' for k,v in df.dtypes.items()}
-
