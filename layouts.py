@@ -1,7 +1,7 @@
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_daq as daq
-from data import options
+from data import options, dlists
 
 main_layout = html.Div(id='main',children=[
     # dependent and independent variables (x- and y-axes)
@@ -46,4 +46,11 @@ aliasing_layout = html.Div(id='aliasing',
     html.Div(html.Button(id='submit-alias', n_clicks=0, children='Submit')),
     ])
 
-filtering_layout = html.Div(id='filtering',children=[html.H6("Not yet implemented")])
+filtering_layout = html.Div(id='filtering',children=[
+        html.Button("Add Filter", id="add-filter", n_clicks=0),
+        html.Div(id='dropdown-container', children=[]),
+        html.Div(id='dropdown-container-output', children=[dcc.Textarea(value='',id='current-filters')])
+    ])
+
+for dl in dlists:
+    filtering_layout.children.append(dl)

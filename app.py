@@ -12,6 +12,7 @@ import pandas as pd
 from data import df, options
 from layouts import *
 from fig_updater import fig_updater, assign_fig_update
+from filter import assign_filter
 
 def create_dash_app():
     fig = fig_updater(df, xs=['dateRep'], ys=['cases_weekly']) 
@@ -31,6 +32,7 @@ def create_dash_app():
 
 app = create_dash_app()
 app = assign_fig_update(app)
+app = assign_filter(app)
 
 show = {'height':'auto'}
 hide = {'height':'0', 'overflow':'hidden','line-height':0,'display':'block'}
