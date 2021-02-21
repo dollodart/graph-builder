@@ -7,72 +7,30 @@ GNU General Public License <https://www.gnu.org/licenses/>.
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_daq as daq
 from dash.dependencies import Input, Output, State
 import pandas as pd
 from fig_updater import fig_updater
 from data import df, options
+from flask import Flask
+from layouts import *
 
-app = dash.Dash(__name__,suppress_callback_exceptions=True)
-fig = fig_updater(df, xs=['dateRep'], ys=['cases_weekly']) 
-
-main_layout = html.Div(id='main',children=[
-    # dependent and independent variables (x- and y-axes)
-    html.Div(style=dict(columnCount=3), children=[html.H6("Select x-axis"),
-                                                  html.H6("Select y-axis"),
-                                                  html.H6("Cartesian product")]),
-    html.Div(style=dict(columnCount=3), children=[dcc.Dropdown(options=options, id='x-axis', multi=True, value=['dateRep']),
-                                                  dcc.Dropdown(options=options, id='y-axis', multi=True, value=['cases_weekly']),
-                                                  daq.ToggleSwitch(id='cartesian-prod',value=False)
-                                                  ]),
-    # legend options (symbol, size, color)
-    html.Div(style=dict(columnCount=3), children=[html.H6("Select symbol"),
-                                                  html.H6("Select size"),
-                                                  html.H6("Select color")]),
-    html.Div(style=dict(columnCount=3), children=[
-        dcc.Dropdown(options=options, id='symbol'),
-        dcc.Dropdown(options=options, id='size'),
-        dcc.Dropdown(options=options, id='color')]),
-    # hover data selection
-    html.Div([html.H6("Select Hover Data"),
-              dcc.Dropdown(options=options, id='hover-data', multi=True)]),
-    html.Div([html.H6("Select smoothing fits"),
-        dcc.RadioItems(options=[{'label':'Whittaker', 'value':'whittaker'}, 
-                  {'label':'Moving Average', 'value':'moving-average'}, 
-                  {'label':'None', 'value':'none'}], value='none', id='smoother'),
-              html.Div(id='smoother-slider-container',children=[dcc.Slider(min=0,max=100,value=5,step=1,id='smoother-slider')])])  
+def create_dash_app():
+    fig = fig_updater(df, xs=['dateRep'], ys=['cases_weekly']) 
+    graph_layout = dcc.Graph(figure=fig, id='plot')
+    app = dash.Dash(suppress_callback_exceptions=True)
+    app.layout = html.Div([
+        dcc.Location(id='url', refresh=False),
+        html.H1(children='Plotly Graph Builder'),
+        dcc.Link('/main', href='/main'),
+        html.Br(),
+        dcc.Link('/filtering', href='/filtering'),
+        html.Br(),
+        dcc.Link('/aliasing', href='/aliasing'),
+        html.Div(id='page-content',children=[main_layout,aliasing_layout,filtering_layout,graph_layout])
     ])
+    return app
 
-graph_layout = dcc.Graph(figure=fig, id='plot')
-
-aliasing_layout = html.Div(id='aliasing',
-        children=[html.Div(style=dict(columnCount=3), 
-                  children=[html.H6("Name"),
-                            html.H6("Alias"),
-                            html.H6("Alias History")]),
-        html.Div(style=dict(columnCount=3), 
-        children=[html.Div(children=[dcc.Dropdown(options=options, id='name')]),
-        html.Div(children=[dcc.Input(id='alias', value='')]),
-        html.Div(children=[dcc.Textarea(
-                id='alias-history',
-                value='',
-                disabled=True)])
-    ]),
-    html.Div(html.Button(id='submit-alias', n_clicks=0, children='Submit')),
-    ])
-
-filtering_layout = html.Div(id='filtering',children=[html.H6("Not yet implemented")])
-
-app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.H1(children='Plotly Graph Builder'),
-    dcc.Link('/main', href='/main'),
-    html.Br(),
-    dcc.Link('/filtering', href='/filtering'),
-    html.Br(),
-    dcc.Link('/aliasing', href='/aliasing'),
-    html.Div(id='page-content',children=[main_layout,aliasing_layout,filtering_layout,graph_layout])
-])
+app = create_dash_app()
 
 show = {'height':'auto'}
 hide = {'height':'0', 'overflow':'hidden','line-height':0,'display':'block'}
