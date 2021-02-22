@@ -64,29 +64,34 @@ def fig_updater(df, xs, ys, size=None, color=None, symbol=None,
     if cartesian_prod:
         shared_xaxes = shared_yaxes = True
         xys = cartesian_product(xs, ys)
+        rows = len(ys)
+        cols = len(xs)
     elif len(xs) > 1 and len(ys) == 1:
         xys = tuple( ((i, 0),(xs[i], ys[0])) for i in range(len(xs)) )
         shared_yaxes = True
+        rows = 1
+        cols = len(xs)
     elif len(xs) == 1 and len(ys) > 1:
         xys = tuple( ((0, i),(xs[0], ys[i])) for i in range(len(ys)) )
         shared_xaxes = True
+        rows = len(ys)
+        cols = 1
     elif len(xs) == 1 and len(ys) == 1:
+        rows = cols = 1
         xys = ((0, 0),(xs[0], ys[0])), 
-    else: # assume x runs fastest
-        xys = []
-        x0 = xs[0]
-        cx = cy = 0
-        for xi, x in enumerate(xs):
-            if x != x0:
-                cx += 1
-                cy = 0
-            else:
-                cy += 1
-            xys.append( ((cx, cy), (x, ys[xi])) )
+    else:
+        n = max(len(xs), len(ys))
+        m = min(len(xs), len(ys))
+        cols = 2
+        rows = 1 + (n - 1) // 2
 
+        if len(xs) < len(ys):
+            xys = tuple( ((i % 2, i // 2), (xs[i % m], ys[i])) for i in range(n))
+        else:
+            xys = tuple( ((i % 2, i // 2), (xs[i], ys[i % m])) for i in range(n))
 
-    fig = make_subplots(rows=len(ys), 
-            cols=len(xs), 
+    fig = make_subplots(rows=rows,
+            cols=cols, 
             shared_yaxes=shared_yaxes,
             shared_xaxes=shared_xaxes)
 
