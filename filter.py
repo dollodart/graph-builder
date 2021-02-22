@@ -107,7 +107,8 @@ def apply_filter(fields, lbs, ubs):
         if types[fields[i]] == 'continuous':
             bls.append((df[fields[i]] > lbs[i]) & (df[fields[i]] < ubs[i]))
         else:
-            bls.append(df[fields[i]] == lbs[i])
+            eqs = tuple(i.strip() for i in lbs[i].split(','))
+            bls.append(df[fields[i]].isin(eqs))
 
     gbl = np.all(bls, axis=0)
 
