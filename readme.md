@@ -23,11 +23,12 @@ Copied:
   categorical data is desired, then each category can be assigned a size by
   making a linear space in a pixel range of the scale (what is commonly called
   factorization). 
+- Dynamic filter creation, filter ranges for continuous variables and sets for discrete variables.
 
 Additional:
-- Easy column aliasing for data sets with long/ununintuitive column names
-- Easy conversion between column data types for the data table (similar to aliasing)
-- Easy column concatenation for string columns to make new legending labels
+- Easy column aliasing for data sets with long/ununintuitive column names.
+- Easy conversion between column data types for the data table (similar to aliasing) 
+- Easy column concatenation for string columns to make new legending labels 
 - Easy selection of items to be displayed in hover text
 - Caching of user settings for filters (not yet implemented, see https://community.plotly.com/t/save-the-app-state-feature-request/5509)
 
@@ -61,22 +62,29 @@ assigned to callback routines. This feature was implemented in Dash
 1.11.0 under the title "pattern matching callbacks" and is explained
 well in the documentation. 
 
-## Caching
-
-Graph Builder doesn't do any computations other than splines, and data
-fetching is trivial to implement caching for (see `data.py`). Memory
-overuse and slow process time are more likely come from inefficient
-routines which containerize the data being input to the plotting API,
-and the plotting API itself. For example, for marker plots several times
-speedup is achieved with go.Scattergl over go.Scatter.
-
-## HTML and styling
+## HTML and CSS
 
 Like JMP, this is designed only for desktop use, so it is expected a
 greater than 1000 pixel width display is used and there is no screen
 size adaptation.
 
 Dash default core component styling is used.
+
+## Program Efficiency and Caching
+
+It is assumed that Dash's scalable design, both through its use of
+React.js for single page application and asynchronous communications on
+client side and its stateless WSGI server side, makes this application
+efficient for use cases of interest, at least until all planned features
+have been developed. It is possible to use, e.g., a SQL connection
+to update a database so callbacks can effectively pass data between
+each other server-side. There exist other means of accomplishing this
+server-side, such as per user session caches.
+
+Memory overuse and slow process time are more likely come from
+inefficient routines which containerize the data being input to the
+plotting API, and the plotting API itself. For example, for marker plots
+several times speedup is achieved with go.Scattergl over go.Scatter.
 
 # Mathematics Notes
 
