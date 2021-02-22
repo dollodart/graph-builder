@@ -21,7 +21,7 @@ ncolors = len(color_cycle)
 
 def cartesian_product(xs, ys):
     """
-    Cartesian product in which xs "run fastest"
+    Cartesian product in which xs "run fastest".
     """
 
     xys = []
@@ -97,7 +97,7 @@ def fig_updater(df, xs, ys, size=None, color=None, symbol=None,
 
     if size is not None:
         if not dtypes[size] in numeric_dtypes:
-            dfsize = disc2cont(df[size])
+            dfsize = disc2cont(df[size]) * max_size
         else:
             dfsize = df[size] * max_size / df[size].max()
 
@@ -128,11 +128,8 @@ def fig_updater(df, xs, ys, size=None, color=None, symbol=None,
                 continue
 
             gr = df[bl]
-            if type(c) is pd._libs.interval.Interval:
-                c = f'{c.left}-{c.right}'
-            if type(s) is pd._libs.interval.Interval:
-                s = f'{s.left}-{s.right}'
-            name = (str(c) if c is not None and c is not True else '') + ('-' + str(s) if s is not None and s is not True else '')
+            name = (str(c) if c is not None and c is not True else '') +\
+                   ('-' + str(s) if s is not None and s is not True else '')
 
             if size is not None:
                 size_array = dfsize[bl]
@@ -190,15 +187,18 @@ def fig_updater(df, xs, ys, size=None, color=None, symbol=None,
 
 
 def cont2disc(series, ncategories=5):
-    # returns an interval type
+    """
+    Converts continuous into intervals to be treated as discrete (intervals represented as strings).
+    """
     q = series.quantile(np.linspace(0, 1, ncategories))
-    return pd.cut(series, pd.unique(q))
+    return pd.cut(series, pd.unique(q)).astype(str)
 
 
-def disc2cont(series, max_val=40):
-    #codes, _ = pd.factorize(series)
-    #codes = codes * max_val / codes.max()
-    return series.map(dict(zip(series.unique(), np.linspace(0, max_val, series.nunique()))))
+def disc2cont(series):
+    """
+    Converts discrete (str or other) to continuous numeric in interval [0, 1].
+    """
+    return series.map(dict(zip(series.unique(), np.linspace(0, 1, series.nunique()))))
 
 if __name__ == '__main__':
     x1 = 'dateRep'
