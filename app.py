@@ -63,12 +63,6 @@ def all_figure_callbacks(x, y,
         smoother, smoother_slider,
         filter_nclicks, filter_fields, filter_lbs, filter_ubs, filter_history):
 
-    # if using dash callback context to selectively update boolean, need to cache the data
-    # just recompute the filter for every adjust, since it isn't expensive
-    #    ctx = dash.callback_context
-    #    print(ctx.triggered)
-    #    if 'filter-update' in ctx.triggered[0]['prop_id']: # they stringify the ID
-
     has_filter = False
     nnone = []
     for i in range(len(filter_fields)):
@@ -79,7 +73,7 @@ def all_figure_callbacks(x, y,
     if has_filter:
         f, l, u = zip(*nnone)
         gbl, filter_history_update = apply_filter(f, l, u)
-        filter_history += filter_history_update
+        filter_history += f'{filter_nclicks}\n' + filter_history_update
     else:
         gbl = [True]*len(df)
 

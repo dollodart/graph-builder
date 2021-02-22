@@ -31,42 +31,6 @@ def assign_filter(app):
         return children
 
 
-    # throws object collision error since the same index is used
-    #@app.callback(
-    #        [Output({'type':'filter-container', 'index': MATCH}, 'children')],
-    #        [Input({'type':'filter-dropdown', 'index':MATCH}, 'value'),
-    #         Input({'type':'filter-delete', 'index':MATCH}, 'n_clicks')],
-    #        [State({'type':'filter-dropdown', 'index':MATCH}, 'id')]) # index attribute is always None?
-    #def alternate_abc(dropdown, delete_n_clicks, index):
-    #    index = index['index']
-    #    print(dropdown, index)
-    #    if delete_n_clicks is not None:
-    #        return html.Div()
-    #    if dropdown is None:
-    #        return dash.no_update
-    #    if types[dropdown] == 'continuous':
-    #        return html.Div(children=[dcc.Dropdown(
-    #        id={'type': 'filter-dropdown', 'index': index},
-    #        options=options),
-    #        dcc.Input(id={'type': 'filter-lb', 'index': index}),
-    #        dcc.Input(id={'type': 'filter-ub', 'index': index}),
-    #        html.Datalist(id={'type': 'filter-discrete-list', 'index': index}),
-    #        html.Button('Update', id={'type': 'filter-update', 'index': index}),
-    #        html.Button('Delete', id={'type': 'filter-delete', 'index': index})
-    #    ], id={'type': 'filter-container', 'index': index}),
-    #    elif types[dropdown] == 'discrete':
-    #        return html.Div(children=[dcc.Dropdown(
-    #        id={'type': 'filter-dropdown', 'index': index},
-    #        options=options),
-    #        dcc.Input(id={'type': 'filter-lb', 'index': index}),
-    ##        dcc.Input(id={'type': 'filter-ub', 'index': index}),
-    #        html.Datalist(id={'type': 'filter-discrete-list', 'index': index}),
-    #        html.Button('Update', id={'type': 'filter-update', 'index': index}),
-    #        html.Button('Delete', id={'type': 'filter-delete', 'index': index})
-    #    ], id={'type': 'filter-container', 'index': index}),
-
-
-
     @app.callback(
         [Output({'type': 'filter-lb', 'index': MATCH}, 'list'),
          Output({'type': 'filter-ub', 'index': MATCH}, 'disabled'),
@@ -91,7 +55,6 @@ def assign_filter(app):
 
     return app
 
-# is used by
 import numpy as np
 
 def apply_filter(fields, lbs, ubs):
@@ -100,7 +63,7 @@ def apply_filter(fields, lbs, ubs):
     for i in range(len(fields)):
         st += f'{i} {fields[i]} {lbs[i]} {ubs[i]}\n'
         if types[fields[i]] == 'continuous':
-            bls.append((df[fields[i]] > lbs[i]) & (df[fields[i]] < ubs[i]))
+            bls.append((df[fields[i]] > float(lbs[i])) & (df[fields[i]] < float(ubs[i])))
         else:
             eqs = tuple(i.strip() for i in lbs[i].split(','))
             bls.append(df[fields[i]].isin(eqs))
