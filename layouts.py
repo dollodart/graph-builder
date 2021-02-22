@@ -27,18 +27,21 @@ main_layout = html.Div(id='main',children=[
     html.Div([html.H6("Select Hover Data"),
               dcc.Dropdown(options=options, id='hover-data', multi=True)]),
     html.Div([html.H6("Select smoothing fits"),
-        dcc.RadioItems(options=[{'label':'Whittaker', 'value':'whittaker'}, 
-                  {'label':'Moving Average', 'value':'moving-average'}, 
+        dcc.RadioItems(options=[{'label':'Whittaker', 'value':'whittaker'},
+                  {'label':'Moving Average', 'value':'moving-average'},
                   {'label':'None', 'value':'none'}], value='none', id='smoother'),
-              html.Div(id='smoother-slider-container',children=[dcc.Slider(min=0,max=100,value=5,step=1,id='smoother-slider')])])  
+              html.Div(id='smoother-slider-container',children=[dcc.Slider(min=0,max=100,value=5,step=1,id='smoother-slider')])])
     ])
 
 aliasing_layout = html.Div(id='aliasing',
-        children=[html.Div(style=dict(columnCount=3), 
+        children=[html.P(id='aliasing-description',
+            children="""Add aliases for long or hard to remember column names to
+            easily enter in the dropdown boxes."""),
+            html.Div(style=dict(columnCount=3),
                   children=[html.H6("Name"),
                             html.H6("Alias"),
                             html.H6("Alias History")]),
-        html.Div(style=dict(columnCount=3), 
+        html.Div(style=dict(columnCount=3),
         children=[html.Div(children=[dcc.Dropdown(options=options, id='name')]),
         html.Div(children=[dcc.Input(id='alias', value='')]),
         html.Div(children=[dcc.Textarea(
@@ -50,6 +53,11 @@ aliasing_layout = html.Div(id='aliasing',
     ])
 
 filtering_layout = html.Div(id='filtering',children=[
+        html.P(id='filtering-description',
+            children="""Apply filters to the dataset. For discrete
+            variables, comma separate like "A,B" in the lower bound. For
+            continuous variables, insert lower and upper bound as
+            integers or floats."""),
         html.Button("Add Filter", id="add-filter", n_clicks=0),
         html.Div(id='dropdown-container', children=[]),
         html.Div(id='dropdown-container-output', children=[dcc.Textarea(value='',id='current-filters')])
