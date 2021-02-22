@@ -12,7 +12,10 @@ import pandas as pd
 from data import df, options
 from layouts import *
 from fig_updater import fig_updater
-from filter import assign_filter
+from filter import assign_filter, apply_filter
+from smooth import assign_smooth
+from alias import assign_alias
+from nav import assign_nav
 
 def create_dash_app():
     fig = fig_updater(df, xs=['dateRep'], ys=['cases_weekly']) 
@@ -31,23 +34,11 @@ def create_dash_app():
     return app
 
 app = create_dash_app()
+app = assign_nav(app)
 app = assign_filter(app)
+app = assign_smooth(app)
+app = assign_alias(app)
 
-show = {'height':'auto'}
-hide = {'height':'0', 'overflow':'hidden','line-height':0,'display':'block'}
-@app.callback([Output('main', 'style'),
-    Output('filtering', 'style'),
-    Output('aliasing', 'style')],
-    [Input('url', 'pathname')])
-def display_page(pathname):
-    if pathname == '/main':
-        return show, hide, hide
-    elif pathname == '/filtering':
-        return hide, show, hide
-    elif pathname == '/aliasing':
-        return hide, hide, show
-
-from filter import apply_filter
 @app.callback(
     [Output('plot', 'figure'),
      Output('current-filters', 'value')],
@@ -102,46 +93,6 @@ def all_figure_callbacks(x, y,
             smoother_parameter=smoother_slider)
     fig.update_layout(transition_duration=500)
     return fig, filter_history
-
-@app.callback([Output('smoother-slider', 'min'),
-    Output('smoother-slider', 'max'),
-    Output('smoother-slider','value'),
-    Output('smoother-slider','step'),
-    Output('smoother-slider', 'marks'),
-    Output('smoother-slider-container', 'style')],
-    [Input('smoother','value')])
-def update_smoother_slider(smoother):
-    if smoother == 'none':
-        return 0, 10, 5, 1, dict(), hide
-    elif smoother == 'whittaker':
-        marks = {k:{'label':f'10^{k}'} for k in range(6)}
-        return 0, 5, 2, 0.1, marks, show
-    elif smoother == 'moving-average':
-        marks = {k:{'label':f'{k}'} for k in [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]}
-        return 1, 50, 15, 1, marks, show
-        
-# column aliasing
-@app.callback(
-    [Output('alias-history','value'),
-     Output('x-axis','options'),
-     Output('y-axis','options'),
-     Output('symbol','options'),
-     Output('size','options'),
-     Output('color','options'),
-     Output('hover-data','options')],
-    Input('submit-alias', 'n_clicks'),
-    [State('name','value'),
-     State('alias','value'),
-     State('alias-history','value'),
-     State('x-axis', 'options')]
-)
-def update_aliases(submit_alias, name, alias, alias_history, current_options):
-    if alias is not None and name is not None:
-        options.append({'label': alias, 'value': name})
-        return (alias_history + '\n' +
-                f'{name}\t{alias}\t{submit_alias}',) + (options,) * 6
-    return dash.no_update
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)

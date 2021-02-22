@@ -3,6 +3,9 @@ import dash_core_components as dcc
 import dash_daq as daq
 from data import options, dlists
 
+show = {'height':'auto'}
+hide = {'height':'0', 'overflow':'hidden','line-height':0,'display':'block'}
+
 main_layout = html.Div(id='main',children=[
     # dependent and independent variables (x- and y-axes)
     html.Div(style=dict(columnCount=3), children=[html.H6("Select x-axis"),
