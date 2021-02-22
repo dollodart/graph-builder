@@ -24,7 +24,8 @@ def assign_filter(app):
             dcc.Input(id={'type': 'filter-ub', 'index': n_clicks}), 
             html.Datalist(id={'type': 'filter-discrete-list', 'index': n_clicks}), 
             html.Button('Update', id={'type': 'filter-update', 'index': n_clicks}), 
-            html.Button('Delete', id={'type': 'filter-delete', 'index': n_clicks})
+            html.Button('Delete', id={'type': 'filter-delete', 'index': n_clicks}),
+            html.P('', id={'type': 'filter-description', 'index': n_clicks})
         ], id={'type': 'filter-container', 'index': n_clicks})
         children.append(new_dropdown)
         return children
@@ -68,23 +69,17 @@ def assign_filter(app):
 
     @app.callback(
         [Output({'type': 'filter-lb', 'index': MATCH}, 'list'),
-         Output({'type': 'filter-ub', 'index': MATCH}, 'disabled')],
-        [Input({'type': 'filter-dropdown', 'index': MATCH}, 'value')],
-        [State({'type': 'filter-ub', 'index': MATCH}, 'disabled')]
+         Output({'type': 'filter-ub', 'index': MATCH}, 'disabled'),
+         Output({'type': 'filter-description', 'index':MATCH}, 'children')],
+        [Input({'type': 'filter-dropdown', 'index': MATCH}, 'value')]
     )
-    def change_type(dropdown, ub_disabled):
+    def change_type(dropdown):
         if dropdown is None:
             return dash.no_update
-        if not ub_disabled:  # currently continuous
-            if types[dropdown] == 'continuous':
-                return dash.no_update
-            else:  # change to discrete
-                return dropdown, True
-        elif ub_disabled:  # currently discrete
-            if types[dropdown] == 'discrete':
-                return dash.no_update
-            else:  # change to continuous
-                return None, False
+        elif types[dropdown] == 'continuous':
+            return dropdown, False, 'quantiles: ' + str(df[dropdown].quantile(np.linspace(0, 1, 6))).replace('    ',':').replace('\n', ',')
+        else:  # change to discrete
+            return dropdown, True, 'unique values: ' + str(df[dropdown].unique())[:50] 
 
 
     @app.callback(

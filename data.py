@@ -23,7 +23,7 @@ except (FileNotFoundError, ZeroDivisionError):
         df.to_csv(_, index=False)
 
 
-numeric_dtypes = ['int64', 'int32', 'float32', 'float64']
+numeric_dtypes = ['int64', 'int32', 'float32', 'float64', 'datetime64[ns]']
 x1 = 'dateRep'
 gbl = df['geoId'].isin(['US', 'BR', 'IN'])
 df = df[gbl] # data subset for testing
